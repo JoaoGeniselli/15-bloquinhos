@@ -46,6 +46,7 @@ import com.dosei.game.blocks.data.Direction
 import com.dosei.game.blocks.domain.calculateSides
 import com.dosei.game.blocks.domain.checkVictory
 import com.dosei.game.blocks.domain.move
+import com.dosei.game.blocks.ui.component.AdvertView
 import com.dosei.game.blocks.ui.component.Board
 import com.dosei.game.blocks.ui.component.NumberTile
 import com.dosei.game.blocks.ui.theme.SlidingBlocksTheme
@@ -177,6 +178,7 @@ fun GameplayContent(
                 )
             }
             Spacer(modifier = Modifier.weight(1f))
+            AdvertView(unitId = R.string.admob_gameplay_banner)
         }
     }
 }

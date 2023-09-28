@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -23,12 +26,27 @@ android {
         }
     }
 
+    val fakeAdMobBanner = "ca-app-pub-3940256099942544/6300978111"
+    val secrets = Properties().apply {
+        load(FileInputStream(rootProject.file("secret.properties")))
+    }
+
     buildTypes {
+        debug {
+            resValue("string", "admob_app_id", secrets.getProperty("ADMOB_APP_ID"))
+            resValue("string", "admob_gameplay_banner", fakeAdMobBanner)
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+            resValue("string", "admob_app_id", secrets.getProperty("ADMOB_APP_ID"))
+            resValue(
+                "string",
+                "admob_gameplay_banner",
+                secrets.getProperty("ADMOB_GAMEPLAY_BANNER")
             )
         }
     }
@@ -66,6 +84,7 @@ dependencies {
     implementation("androidx.compose.material:material")
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.android.gms:play-services-ads:22.4.0")
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
