@@ -12,7 +12,7 @@ const val INVALID_VALUE = -1
 @Parcelize
 data class GameplayState(
     val boardSize: Int = DEFAULT_SIZE,
-    val tiles: List<TileData> = (1..15).shuffled()
+    val tiles: List<TileData> = (1..15)//.shuffled()
         .map { TileData.Number(it) }
         .let { calculateSides(it + TileData.Blank, DEFAULT_SIZE) },
     val isVictory: Boolean = false

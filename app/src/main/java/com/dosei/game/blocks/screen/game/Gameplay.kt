@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.items
@@ -35,6 +36,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
@@ -158,34 +161,22 @@ fun GameplayContent(
             )
 
             if (state.isVictory) {
-                DateFormat.getDateInstance()
-                DateFormat.getDateTimeInstance()
-
-                AlertDialog(
-                    onDismissRequest = { },
-                    confirmButton = {
-                        TextButton(
-                            onClick = onReset
-                        ) {
-                            ResetIcon()
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(text = stringResource(R.string.action_reset))
-                        }
-                    },
-                    icon = {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_trophy_24),
-                            contentDescription = stringResource(R.string.trophy)
-                        )
-                    },
-                    title = {
-                        Text(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = stringResource(R.string.you_won),
-                            textAlign = TextAlign.Center
-                        )
-                    }
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    modifier = Modifier.fillMaxWidth(),
+                    text = stringResource(R.string.you_won),
+                    style = MaterialTheme.typography.headlineMedium,
+                    textAlign = TextAlign.Center
                 )
+                Spacer(modifier = Modifier.height(16.dp))
+                Button(
+                    modifier = Modifier.align(CenterHorizontally),
+                    onClick = onReset
+                ) {
+                    ResetIcon()
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(text = stringResource(R.string.action_reset))
+                }
             }
             Spacer(modifier = Modifier.weight(1f))
             AdvertView(unitId = R.string.admob_gameplay_banner)

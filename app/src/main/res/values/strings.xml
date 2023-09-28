@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">15 bloquinhos</string>
     <string name="action_reset">Reiniciar</string>
-    <string name="you_won">Você venceu!</string>
+    <string name="you_won">🏆 Você venceu! 🎉</string>
     <string name="trophy">troféu</string>
     <string name="help">Ajuda</string>
     <string name="understood">Entendi</string>
