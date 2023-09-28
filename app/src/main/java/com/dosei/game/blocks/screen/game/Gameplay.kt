@@ -16,10 +16,13 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.RichTooltipBox
+import androidx.compose.material3.RichTooltipState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -37,10 +40,17 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.ParagraphStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextIndent
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.dosei.game.blocks.R
 import com.dosei.game.blocks.data.Direction
 import com.dosei.game.blocks.domain.calculateSides
@@ -186,11 +196,32 @@ fun GameplayContent(
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 private fun TopBar(onReset: () -> Unit) {
+    val scope = rememberCoroutineScope()
+    val helpState = remember { RichTooltipState() }
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.app_name)) },
         actions = {
             IconButton(onClick = onReset) {
                 ResetIcon()
+            }
+            RichTooltipBox(
+                modifier = Modifier,
+                tooltipState = helpState,
+                title = { Text(stringResource(R.string.help)) },
+                text = { Text(stringResource(R.string.gameplay_help)) },
+                action = {
+                    Button(
+                        onClick = { scope.launch { helpState.dismiss() } },
+                        content = { Text(text = stringResource(R.string.understood)) }
+                    )
+                }
+            ) {
+                IconButton(onClick = { scope.launch { helpState.show() } }) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.baseline_help_outline_24),
+                        contentDescription = stringResource(R.string.help)
+                    )
+                }
             }
         }
     )

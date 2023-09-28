@@ -3,4 +3,7 @@
     <string name="action_reset">Reiniciar</string>
     <string name="you_won">Você venceu!</string>
     <string name="trophy">troféu</string>
+    <string name="help">Ajuda</string>
+    <string name="understood">Entendi</string>
+    <string name="gameplay_help">Arraste o tabuleiro para mover os blocos. Para vencer, coloque os números em ordem crescente da esquerda para a direita.</string>
 </resources>
