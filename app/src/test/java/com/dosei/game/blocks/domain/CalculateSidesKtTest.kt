@@ -3,13 +3,24 @@ package com.dosei.game.blocks.domain
 import com.dosei.game.blocks.data.Direction
 import com.dosei.game.blocks.data.TileData.Blank
 import com.dosei.game.blocks.data.TileData.Number
+import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 
 class CalculateSidesKtTest {
 
+    private lateinit var calculateSides: CalculateSides
+
+    @Before
+    fun before() {
+        calculateSides = CalculateSides()
+    }
+
     @Test
-    fun `test calculation with all sides`() {
+    fun `test calculation with all sides`() = runBlocking {
+
         val tiles = matrix(
             1, 2, 3, 4,
             5, 6, 7, 8,
@@ -45,7 +56,7 @@ class CalculateSidesKtTest {
     }
 
     @Test
-    fun `test calculation with negative sides`() {
+    fun `test calculation with negative sides`() = runBlocking {
         val tiles = matrix(
             BL, 2, 3, 4,
             5, 6, 7, 8,
@@ -81,7 +92,7 @@ class CalculateSidesKtTest {
     }
 
     @Test
-    fun `test calculation with out of range sides`() {
+    fun `test calculation with out of range sides`() = runBlocking {
         val tiles = matrix(
             1, 2, 3, 4,
             5, 6, 7, 8,
@@ -117,7 +128,7 @@ class CalculateSidesKtTest {
     }
 
     @Test
-    fun `test calculation with result on different lines`() {
+    fun `test calculation with result on different lines`() = runBlocking {
         val tiles = matrix(
             1, 2, 3, 4,
             5, 6, 7, BL,
