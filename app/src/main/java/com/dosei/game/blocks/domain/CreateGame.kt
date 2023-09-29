@@ -12,7 +12,6 @@ class CreateGame(
     private val coroutineContext: CoroutineContext = Dispatchers.IO
 ) {
 
-
     suspend operator fun invoke(boardSize: Int = DEFAULT_SIZE) = withContext(coroutineContext) {
         val maxTiles = boardSize * boardSize
         val tileNumbers = (1..maxTiles.dec()).shuffled()

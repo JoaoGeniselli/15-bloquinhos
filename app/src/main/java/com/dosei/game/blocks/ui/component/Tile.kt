@@ -28,11 +28,6 @@ fun Tile(
     }
 }
 
-@Composable
-fun BlankTile() {
-
-}
-
 @Preview
 @Composable
 private fun PreviewTile() {
