@@ -1,7 +1,6 @@
 package com.dosei.game.blocks.domain
 
 import com.dosei.game.blocks.data.Direction
-import com.dosei.game.blocks.data.Dummy
 import com.dosei.game.blocks.data.GameState
 import com.dosei.game.blocks.toolbox.tickerFlow
 import kotlinx.coroutines.CoroutineScope
@@ -26,17 +25,8 @@ class GameManager(
     val state = _state.asStateFlow()
 
     init {
-        reset()
-    }
-
-    private fun restartTicker() {
-        _tickerJob?.cancel()
-        _tickerJob = scope.launch {
-            tickerFlow().cancellable().collect {
-                _state.value?.run {
-                    _state.emit(copy(time = time.inc()))
-                }
-            }
+        scope.launch {
+            _state.emit(createGame())
         }
     }
 
@@ -55,10 +45,29 @@ class GameManager(
         }
     }
 
+    fun resume() {
+        startTimer()
+    }
+
+    private fun startTimer() {
+        _tickerJob = scope.launch {
+            tickerFlow().cancellable().collect {
+                _state.value?.run {
+                    _state.emit(copy(time = time.inc()))
+                }
+            }
+        }
+    }
+
+    fun pause() {
+        _tickerJob?.cancel()
+    }
+
     fun reset() {
+        _tickerJob?.cancel()
         scope.launch {
             _state.emit(createGame())
         }
-        restartTicker()
+        startTimer()
     }
 }

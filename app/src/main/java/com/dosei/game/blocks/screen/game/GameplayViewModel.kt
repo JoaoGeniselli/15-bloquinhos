@@ -15,11 +15,9 @@ class GameplayViewModel(
         gameManager.move(direction)
     }
 
-    fun onReset() {
-        gameManager.reset()
-    }
+    fun onReset() = gameManager.reset()
 
-    override fun onCleared() {
+    fun onStart() = gameManager.resume()
 
-    }
+    fun onStop() = gameManager.pause()
 }

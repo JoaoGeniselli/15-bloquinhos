@@ -5,7 +5,7 @@ import kotlinx.coroutines.flow.flow
 
 const val OneSecond = 1000L
 
-fun tickerFlow(delay: Long = OneSecond, initialTime: Long = 0L) = flow {
+fun tickerFlow(delay: Long = OneSecond, initialTime: Long = OneSecond) = flow {
     delay(initialTime)
     while (true) {
         emit(Unit)
