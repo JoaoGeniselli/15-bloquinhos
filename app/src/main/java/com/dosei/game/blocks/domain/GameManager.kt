@@ -2,6 +2,7 @@ package com.dosei.game.blocks.domain
 
 import com.dosei.game.blocks.data.Direction
 import com.dosei.game.blocks.data.Dummy
+import com.dosei.game.blocks.data.GameState
 import com.dosei.game.blocks.toolbox.tickerFlow
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,7 +20,7 @@ class GameManager(
     private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
 ) {
 
-    private var _state = MutableStateFlow(Dummy)
+    private var _state = MutableStateFlow<GameState?>(null)
     private var _tickerJob: Job? = null
 
     val state = _state.asStateFlow()
@@ -32,7 +33,7 @@ class GameManager(
         _tickerJob?.cancel()
         _tickerJob = scope.launch {
             tickerFlow().cancellable().collect {
-                with(_state.value) {
+                _state.value?.run {
                     _state.emit(copy(time = time.inc()))
                 }
             }
@@ -40,8 +41,8 @@ class GameManager(
     }
 
     fun move(direction: Direction) {
+        val state = _state.value ?: return
         scope.launch {
-            val state = _state.value
             val updatedTiles = calculateSides(
                 moveTiles(state.tiles, direction),
                 state.boardSize

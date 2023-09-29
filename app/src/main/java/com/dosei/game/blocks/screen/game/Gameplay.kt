@@ -76,7 +76,7 @@ fun GameplayScreen(
 )
 fun GameplayContent(
     modifier: Modifier = Modifier,
-    state: GameState,
+    state: GameState?,
     onReset: () -> Unit = {},
     onMove: (Direction) -> Unit
 ) {
@@ -87,78 +87,90 @@ fun GameplayContent(
     ) { padding ->
         var movementOffset by remember { mutableStateOf(Offset(.0f, .0f)) }
 
-        Column(Modifier.padding(padding)) {
-            Spacer(modifier = Modifier.weight(1f))
-            Board(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .pointerInput(0) {
-                        detectDragGestures(
-                            onDragStart = { movementOffset = Offset(.0f, .0f) },
-                            onDragCancel = { movementOffset = Offset(.0f, .0f) },
-                            onDrag = { input, offset ->
-                                input.consume()
-                                movementOffset = Offset(
-                                    movementOffset.x + offset.x,
-                                    movementOffset.y + offset.y
-                                )
-                            },
-                            onDragEnd = {
-                                val direction = if (abs(movementOffset.x) > abs(movementOffset.y)) {
-                                    if (movementOffset.x > 0) Direction.RIGHT else Direction.LEFT
-                                } else {
-                                    if (movementOffset.y > 0) Direction.DOWN else Direction.UP
+        if (state != null) {
+            Column(Modifier.padding(padding)) {
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                Text(
+                    modifier = Modifier.align(CenterHorizontally),
+                    text = formatTime(timeInSeconds = state.time.toLong()),
+                    style = MaterialTheme.typography.headlineSmall
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Board(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .pointerInput(0) {
+                            detectDragGestures(
+                                onDragStart = { movementOffset = Offset(.0f, .0f) },
+                                onDragCancel = { movementOffset = Offset(.0f, .0f) },
+                                onDrag = { input, offset ->
+                                    input.consume()
+                                    movementOffset = Offset(
+                                        movementOffset.x + offset.x,
+                                        movementOffset.y + offset.y
+                                    )
+                                },
+                                onDragEnd = {
+                                    val direction =
+                                        if (abs(movementOffset.x) > abs(movementOffset.y)) {
+                                            if (movementOffset.x > 0) Direction.RIGHT else Direction.LEFT
+                                        } else {
+                                            if (movementOffset.y > 0) Direction.DOWN else Direction.UP
+                                        }
+                                    onMove(direction)
                                 }
-                                onMove(direction)
-                            }
-                        )
-                    },
-                buildTiles = {
+                            )
+                        },
+                    buildTiles = {
 
-                    items(state.tiles, key = { it.value }) { tile ->
-                        val mod = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement(animationSpec = tween(durationMillis = 100))
-                            .aspectRatio(1f)
+                        items(state.tiles, key = { it.value }) { tile ->
+                            val mod = Modifier
+                                .fillMaxWidth()
+                                .animateItemPlacement(animationSpec = tween(durationMillis = 100))
+                                .aspectRatio(1f)
 
-                        when (tile) {
-                            is TileData.Number -> {
-                                NumberTile(
-                                    modifier = mod,
-                                    number = tile.value
-                                )
-                            }
+                            when (tile) {
+                                is TileData.Number -> {
+                                    NumberTile(
+                                        modifier = mod,
+                                        number = tile.value
+                                    )
+                                }
 
-                            else -> {
-                                Spacer(
-                                    modifier = mod
-                                )
+                                else -> {
+                                    Spacer(
+                                        modifier = mod
+                                    )
+                                }
                             }
                         }
                     }
-                }
-            )
-
-            if (state.isVictory) {
-                Spacer(modifier = Modifier.height(16.dp))
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = stringResource(R.string.you_won),
-                    style = MaterialTheme.typography.headlineMedium,
-                    textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(
-                    modifier = Modifier.align(CenterHorizontally),
-                    onClick = onReset
-                ) {
-                    ResetIcon()
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(text = stringResource(R.string.action_reset))
+
+                if (state.isVictory) {
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = stringResource(R.string.you_won),
+                        style = MaterialTheme.typography.headlineMedium,
+                        textAlign = TextAlign.Center
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        modifier = Modifier.align(CenterHorizontally),
+                        onClick = onReset
+                    ) {
+                        ResetIcon()
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(text = stringResource(R.string.action_reset))
+                    }
                 }
+                Spacer(modifier = Modifier.weight(1f))
+                AdvertView(unitId = R.string.admob_gameplay_banner)
             }
-            Spacer(modifier = Modifier.weight(1f))
-            AdvertView(unitId = R.string.admob_gameplay_banner)
         }
     }
 }
@@ -218,7 +230,8 @@ private fun PreviewGameplay() {
                     tiles = (1..10).map { TileData.Number(it) } +
                             TileData.Blank +
                             (11..15).map { TileData.Number(it) },
-                    isVictory = true
+                    isVictory = true,
+                    time = 65
                 ),
                 {},
                 {},

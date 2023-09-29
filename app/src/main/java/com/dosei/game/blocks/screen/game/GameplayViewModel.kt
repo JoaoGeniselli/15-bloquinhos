@@ -5,8 +5,7 @@ import com.dosei.game.blocks.data.Direction
 import com.dosei.game.blocks.domain.GameManager
 import javax.inject.Inject
 
-//@HiltViewModel
-class GameplayViewModel @Inject constructor(
+class GameplayViewModel(
     private val gameManager: GameManager,
 ) : ViewModel() {
 
