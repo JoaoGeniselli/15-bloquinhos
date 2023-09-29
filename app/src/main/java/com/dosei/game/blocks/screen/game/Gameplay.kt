@@ -14,28 +14,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.RichTooltipBox
-import androidx.compose.material3.RichTooltipState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,8 +37,9 @@ import com.dosei.game.blocks.toolbox.detectDragDirection
 import com.dosei.game.blocks.ui.component.AdvertView
 import com.dosei.game.blocks.ui.component.Board
 import com.dosei.game.blocks.ui.component.NumberTile
+import com.dosei.game.blocks.ui.component.ResetIcon
+import com.dosei.game.blocks.ui.component.TopBar
 import com.dosei.game.blocks.ui.theme.SlidingBlocksTheme
-import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -68,9 +57,6 @@ fun GameplayScreen(
 }
 
 @Composable
-@OptIn(
-    ExperimentalFoundationApi::class,
-)
 fun GameplayContent(
     modifier: Modifier = Modifier,
     state: GameState?,
@@ -82,50 +68,60 @@ fun GameplayContent(
         topBar = { TopBar(onReset) },
         contentWindowInsets = WindowInsets(16.dp, 16.dp, 16.dp, 16.dp)
     ) { padding ->
-
         if (state != null) {
             Column(
                 modifier = Modifier.padding(padding),
                 verticalArrangement = spacedBy(16.dp)
             ) {
-
                 Spacer(modifier = Modifier.weight(1f))
+                Time(state)
 
-                Text(
-                    modifier = Modifier.align(CenterHorizontally),
-                    text = formatTime(timeInSeconds = state.time.toLong()),
-                    style = MaterialTheme.typography.headlineSmall
-                )
-
-                Board(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .detectDragDirection { onMove(it) },
-                    buildTiles = {
-                        items(state.tiles, key = { it.value }) { tile ->
-                            val mod = Modifier
-                                .fillMaxWidth()
-                                .animateItemPlacement(animationSpec = tween(durationMillis = 100))
-                                .aspectRatio(1f)
-
-                            when (tile) {
-                                is Number -> NumberTile(modifier = mod, number = tile.value)
-                                else -> Spacer(modifier = mod)
-                            }
-                        }
-                    }
-                )
+                GameBoard(state, onMove)
 
                 if (state.isVictory) {
                     VictoryMessage(onReset)
                 }
 
                 Spacer(modifier = Modifier.weight(1f))
-
                 AdvertView(unitId = R.string.admob_gameplay_banner)
             }
         }
     }
+}
+
+@Composable
+private fun ColumnScope.Time(state: GameState) {
+    Text(
+        modifier = Modifier.Companion.align(CenterHorizontally),
+        text = formatTime(timeInSeconds = state.time.toLong()),
+        style = MaterialTheme.typography.headlineSmall
+    )
+}
+
+@Composable
+@OptIn(ExperimentalFoundationApi::class)
+private fun GameBoard(
+    state: GameState,
+    onMove: (Direction) -> Unit
+) {
+    Board(
+        modifier = Modifier
+            .fillMaxWidth()
+            .detectDragDirection { onMove(it) },
+        buildTiles = {
+            items(state.tiles, key = { it.value }) { tile ->
+                val mod = Modifier
+                    .fillMaxWidth()
+                    .animateItemPlacement(animationSpec = tween(durationMillis = 100))
+                    .aspectRatio(1f)
+
+                when (tile) {
+                    is Number -> NumberTile(modifier = mod, number = tile.value)
+                    else -> Spacer(modifier = mod)
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -144,49 +140,6 @@ fun ColumnScope.VictoryMessage(onReset: () -> Unit) {
         Spacer(modifier = Modifier.width(8.dp))
         Text(text = stringResource(R.string.action_reset))
     }
-}
-
-@Composable
-@OptIn(ExperimentalMaterial3Api::class)
-private fun TopBar(onReset: () -> Unit) {
-    val scope = rememberCoroutineScope()
-    val helpState = remember { RichTooltipState() }
-    TopAppBar(
-        title = { Text(text = stringResource(id = R.string.app_name)) },
-        actions = {
-            IconButton(onClick = onReset) {
-                ResetIcon()
-            }
-            RichTooltipBox(
-                modifier = Modifier,
-                tooltipState = helpState,
-                title = { Text(stringResource(R.string.help)) },
-                text = { Text(stringResource(R.string.gameplay_help)) },
-                action = {
-                    Button(
-                        onClick = { scope.launch { helpState.dismiss() } },
-                        content = { Text(text = stringResource(R.string.understood)) }
-                    )
-                }
-            ) {
-                IconButton(onClick = { scope.launch { helpState.show() } }) {
-                    Icon(
-                        painter = painterResource(id = R.drawable.baseline_help_outline_24),
-                        contentDescription = stringResource(R.string.help)
-                    )
-                }
-            }
-        }
-    )
-}
-
-@Composable
-private fun ResetIcon() {
-    Icon(
-        modifier = Modifier.scale(scaleX = -1f, scaleY = 1f),
-        imageVector = Icons.Default.Refresh,
-        contentDescription = stringResource(R.string.action_reset)
-    )
 }
 
 @Preview(showBackground = true)
