@@ -3,14 +3,14 @@ package com.dosei.game.blocks.screen.game
 import android.content.res.Configuration
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.detectDragGestures
+import androidx.compose.foundation.layout.Arrangement.spacedBy
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.items
@@ -30,15 +30,11 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -48,13 +44,14 @@ import com.dosei.game.blocks.R
 import com.dosei.game.blocks.data.Direction
 import com.dosei.game.blocks.data.GameState
 import com.dosei.game.blocks.data.TileData
+import com.dosei.game.blocks.data.TileData.Number
+import com.dosei.game.blocks.toolbox.detectDragDirection
 import com.dosei.game.blocks.ui.component.AdvertView
 import com.dosei.game.blocks.ui.component.Board
 import com.dosei.game.blocks.ui.component.NumberTile
 import com.dosei.game.blocks.ui.theme.SlidingBlocksTheme
 import kotlinx.coroutines.launch
 import org.koin.androidx.compose.koinViewModel
-import kotlin.math.abs
 
 @Composable
 fun GameplayScreen(
@@ -85,10 +82,12 @@ fun GameplayContent(
         topBar = { TopBar(onReset) },
         contentWindowInsets = WindowInsets(16.dp, 16.dp, 16.dp, 16.dp)
     ) { padding ->
-        var movementOffset by remember { mutableStateOf(Offset(.0f, .0f)) }
 
         if (state != null) {
-            Column(Modifier.padding(padding)) {
+            Column(
+                modifier = Modifier.padding(padding),
+                verticalArrangement = spacedBy(16.dp)
+            ) {
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -97,35 +96,12 @@ fun GameplayContent(
                     text = formatTime(timeInSeconds = state.time.toLong()),
                     style = MaterialTheme.typography.headlineSmall
                 )
-                Spacer(modifier = Modifier.height(16.dp))
 
                 Board(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .pointerInput(0) {
-                            detectDragGestures(
-                                onDragStart = { movementOffset = Offset(.0f, .0f) },
-                                onDragCancel = { movementOffset = Offset(.0f, .0f) },
-                                onDrag = { input, offset ->
-                                    input.consume()
-                                    movementOffset = Offset(
-                                        movementOffset.x + offset.x,
-                                        movementOffset.y + offset.y
-                                    )
-                                },
-                                onDragEnd = {
-                                    val direction =
-                                        if (abs(movementOffset.x) > abs(movementOffset.y)) {
-                                            if (movementOffset.x > 0) Direction.RIGHT else Direction.LEFT
-                                        } else {
-                                            if (movementOffset.y > 0) Direction.DOWN else Direction.UP
-                                        }
-                                    onMove(direction)
-                                }
-                            )
-                        },
+                        .detectDragDirection { onMove(it) },
                     buildTiles = {
-
                         items(state.tiles, key = { it.value }) { tile ->
                             val mod = Modifier
                                 .fillMaxWidth()
@@ -133,45 +109,40 @@ fun GameplayContent(
                                 .aspectRatio(1f)
 
                             when (tile) {
-                                is TileData.Number -> {
-                                    NumberTile(
-                                        modifier = mod,
-                                        number = tile.value
-                                    )
-                                }
-
-                                else -> {
-                                    Spacer(
-                                        modifier = mod
-                                    )
-                                }
+                                is Number -> NumberTile(modifier = mod, number = tile.value)
+                                else -> Spacer(modifier = mod)
                             }
                         }
                     }
                 )
 
                 if (state.isVictory) {
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = stringResource(R.string.you_won),
-                        style = MaterialTheme.typography.headlineMedium,
-                        textAlign = TextAlign.Center
-                    )
-                    Spacer(modifier = Modifier.height(16.dp))
-                    Button(
-                        modifier = Modifier.align(CenterHorizontally),
-                        onClick = onReset
-                    ) {
-                        ResetIcon()
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = stringResource(R.string.action_reset))
-                    }
+                    VictoryMessage(onReset)
                 }
+
                 Spacer(modifier = Modifier.weight(1f))
+
                 AdvertView(unitId = R.string.admob_gameplay_banner)
             }
         }
+    }
+}
+
+@Composable
+fun ColumnScope.VictoryMessage(onReset: () -> Unit) {
+    Text(
+        modifier = Modifier.fillMaxWidth(),
+        text = stringResource(R.string.you_won),
+        style = MaterialTheme.typography.headlineMedium,
+        textAlign = TextAlign.Center
+    )
+    Button(
+        modifier = Modifier.align(CenterHorizontally),
+        onClick = onReset
+    ) {
+        ResetIcon()
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(text = stringResource(R.string.action_reset))
     }
 }
 
@@ -227,9 +198,9 @@ private fun PreviewGameplay() {
             GameplayContent(
                 modifier = Modifier,
                 state = GameState(
-                    tiles = (1..10).map { TileData.Number(it) } +
+                    tiles = (1..10).map { Number(it) } +
                             TileData.Blank +
-                            (11..15).map { TileData.Number(it) },
+                            (11..15).map { Number(it) },
                     isVictory = true,
                     time = 65
                 ),
