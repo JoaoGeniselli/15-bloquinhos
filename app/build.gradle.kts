@@ -33,6 +33,7 @@ android {
 
     buildTypes {
         debug {
+            isMinifyEnabled = false
             resValue("string", "admob_app_id", secrets.getProperty("ADMOB_APP_ID"))
             resValue("string", "admob_gameplay_banner", fakeAdMobBanner)
         }
@@ -70,6 +71,10 @@ android {
     }
 }
 
+//kotlin {
+//    jvmToolchain(8)
+//}
+
 dependencies {
 
     implementation("androidx.core:core-ktx:1.9.0")
@@ -92,4 +97,9 @@ dependencies {
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
+
+    implementation(platform("io.insert-koin:koin-bom:3.5.1"))
+    implementation("io.insert-koin:koin-android")
+    implementation("io.insert-koin:koin-androidx-compose")
+
 }

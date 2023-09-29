@@ -1,8 +1,8 @@
 package com.dosei.game.blocks.domain
 
 import com.dosei.game.blocks.data.Direction
-import com.dosei.game.blocks.screen.game.TileData.Blank
-import com.dosei.game.blocks.screen.game.TileData.Number
+import com.dosei.game.blocks.data.TileData.Blank
+import com.dosei.game.blocks.data.TileData.Number
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

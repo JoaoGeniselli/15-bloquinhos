@@ -1,7 +1,7 @@
 package com.dosei.game.blocks.domain
 
-import com.dosei.game.blocks.screen.game.TileData.Blank
-import com.dosei.game.blocks.screen.game.TileData.Number
+import com.dosei.game.blocks.data.TileData.Blank
+import com.dosei.game.blocks.data.TileData.Number
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertTrue
 import org.junit.Test

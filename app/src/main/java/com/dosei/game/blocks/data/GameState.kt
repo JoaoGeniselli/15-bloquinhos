@@ -1,8 +1,6 @@
-package com.dosei.game.blocks.screen.game
+package com.dosei.game.blocks.data
 
 import android.os.Parcelable
-import com.dosei.game.blocks.data.Direction
-import com.dosei.game.blocks.domain.calculateSides
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 
@@ -10,13 +8,16 @@ const val DEFAULT_SIZE = 4
 const val INVALID_VALUE = -1
 
 @Parcelize
-data class GameplayState(
+data class GameState(
     val boardSize: Int = DEFAULT_SIZE,
-    val tiles: List<TileData> = (1..15)//.shuffled()
-        .map { TileData.Number(it) }
-        .let { calculateSides(it + TileData.Blank, DEFAULT_SIZE) },
-    val isVictory: Boolean = false
+    val tiles: List<TileData>,
+    val isVictory: Boolean = false,
+    val time: Int = 0
 ) : Parcelable
+
+val Dummy = GameState(
+    tiles = (1..DEFAULT_SIZE * DEFAULT_SIZE).map { TileData.Blank },
+)
 
 @Parcelize
 sealed class TileData : Parcelable {
